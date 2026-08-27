@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BreadBasket (BB App) - Inventory & Production Management System</title>
+  
+  <style>
+    :root {
+      --brand-dark: #3a2212;
+      --brand-primary: #8c5319;
+      --brand-accent: #d97706;
+      --brand-light: #fefae0;
+      --bg-main: #f4efe6;
+      --card-bg: #ffffff;
+      --text-dark: #2b1e16;
+      --text-muted: #6b5c52;
+      --price-green: #15803d;
+      --alert-red: #b91c1c;
+      --border-color: #e5d9c8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-dark);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* HEADER */
+    header {
+      background-color: var(--brand-dark);
+      color: #fff;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      height: 40px;
+      width: 40px;
+      object-fit: contain;
+      border-radius: 6px;
+      background: #fff;
+      padding: 2px;
+    }
+
+    .brand-title h1 {
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-title p {
+      font-size: 0.7rem;
+      color: var(--brand-accent);
+      font-style: italic;
+    }
+
+    .role-switcher-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .role-switcher-container label {
+      font-size: 0.7rem;
+      color: var(--brand-light);
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .role-select {
+      background-color: var(--brand-accent);
+      color: #fff;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .role-select option {
+      background-color: #fff;
+      color: var(--text-dark);
+    }
+
+    /* NAVIGATION TABS */
+    nav {
+      background-color: #e8ded1;
+      display: flex;
+      border-bottom: 2px solid var(--border-color);
+      padding: 0 15px;
+      overflow-x: auto;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .nav-tab {
+      padding: 12px 16px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .nav-tab.active {
+      color: var(--brand-primary);
+      border-bottom-color: var(--brand-primary);
+      background-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .nav-tab.hidden {
+      display: none !important;
+    }
+
+    /* CONTAINER & PANELS */
+    .main-container {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    /* CARDS & TABLES */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    }
+
+    .card h3 {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    .card .value {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: var(--brand-dark);
+    }
+
+    .table-container {
+      background: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .table-header {
+      background-color: var(--brand-primary);
+      color: #fff;
+      padding: 12px 15px;
+      font-weight: bold;
+      font-size: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .table-scroll-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      min-width: 550px;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th {
+      background-color: #f8f4ed;
+      color: var(--text-dark);
+    }
+
+    .status-pill {
+      padding: 3px 8px;
+      border-radius: 10px;
+      font-size: 0.7rem;
+      font-weight: bold;
+      display: inline-block;
+    }
+
+    .pill-green { background: #dcfce7; color: #15803d; }
+    .pill-red { background: #fee2e2; color: #b91c1c; }
+
+    .btn {
+      padding: 8px 12px;
+      background-color: var(--brand-primary);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+
+    .btn:hover { background-color: var(--brand-dark); }
+    .btn-accent { background-color: var(--brand-accent); }
+    .btn-accent:hover { background-color: #b45309; }
+    .btn-danger { background-color: var(--alert-red); }
+
+    .split-layout {
+      display: flex;
+      gap: 15px;
+    }
+
+    .col-main { flex: 2; }
+    .col-side { flex: 1; }
+
+    input, select {
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      width: 100%;
+      margin-top: 4px;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .recipe-builder-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 6px;
+      align-items: center;
+    }
+
+    .role-banner {
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      color: #92400e;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+    }
+
+    /* 403 ACCESS DENIED BANNER */
+    .access-denied-box {
+      display: none;
+      background-color: #fee2e2;
+      border: 1px solid #ef4444;
+      color: #991b1b;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .access-denied-box h2 {
+      font-size: 1.2rem;
+      margin-bottom: 5px;
+    }
+
+    /* MOBILE RESPONSIVE FIXES */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 10px 15px;
+      }
+
+      .role-switcher-container {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .split-layout {
+        flex-direction: column;
+      }
+
+      .col-main, .col-side {
+        width: 100%;
+      }
+
+      .btn {
+        padding: 10px 14px;
+        font-size: 0.85rem;
+      }
+
+      nav {
+        padding: 0 10px;
+      }
+      
+      .nav-tab {
+        padding: 10px 12px;
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER WITH QUICK ROLE SWITCHER -->
+  <header>
+    <div class="brand-title">
+      <img src="logo.png" alt="Bread Basket Logo" class="brand-logo" onerror="this.style.display='none'">
+      <div>
+        <h1>BREADBASKET (BB APP)</h1>
+        <p>Bakery Inventory & Production System</p>
+      </div>
+    </div>
+
+    <!-- Active View Selector -->
+    <div class="role-switcher-container">
+      <label for="active-role-select">Current View:</label>
+      <select id="active-role-select" class="role-select" onchange="switchRole(this.value)">
+        <option value="Admin">Administrator / Owner</option>
+        <option value="Baker">Baker (Production Staff)</option>
+        <option value="Inventory Staff">Staff (Inventory & Sales)</option>
+      </select>
+    </div>
+  </header>
+
+  <!-- NAVIGATION TABS -->
+  <nav id="nav-bar">
+    <div class="nav-tab active" id="nav-tab-ai" data-roles="Admin,Baker,Inventory Staff" onclick="showTab('tab-ai-production', event)">🤖 AI Production Planner</div>
+    <div class="nav-tab" id="nav-tab-catalog" data-roles="Admin,Baker,Inventory Staff" onclick="showTab('tab-catalog', event)">🍞 Bread Catalog & Recipes</div>
+    <div class="nav-tab" id="nav-tab-ingredients" data-roles="Admin,Inventory Staff,Baker" onclick="showTab('tab-ingredients', event)">📦 Raw Ingredients</div>
+    <div class="nav-tab" id="nav-tab-pos" data-roles="Admin,Inventory Staff" onclick="showTab('tab-pos', event)">🛒 Sales Transactions</div>
+    <div class="nav-tab" id="nav-tab-reports" data-roles="Admin,Baker,Inventory Staff" onclick="showTab('tab-reports', event)">📊 System Reports</div>
+  </nav>
+
+  <!-- MAIN CONTAINER -->
+  <div class="main-container">
+
+    <!-- 403 ACCESS DENIED CONTAINER -->
+    <div id="403-container" class="access-denied-box">
+      <h2>🚫 403 - Access Denied / Unauthorized</h2>
+      <p>Your current role does not have permission to view or execute actions in this module.</p>
+    </div>
+
+    <!-- TAB 1: AI PRODUCTION PLANNER (Admin, Baker, Staff) -->
+    <div id="tab-ai-production" class="tab-content active">
+      <div id="baker-banner" class="role-banner" style="display: none;">
+        <strong>Baker View:</strong> Monitor daily targets, inspect recipe requirements, and log finished batches.
+      </div>
+
+      <div class="card-grid">
+        <div class="card">
+          <h3>AI Forecast Engine</h3>
+          <div class="value" style="color: var(--price-green);">Active</div>
+          <small>Learning from sales trend</small>
+        </div>
+        <div class="card">
+          <h3>Today's Target Output</h3>
+          <div class="value" id="kpi-target-output">0 Units</div>
+        </div>
+        <div class="card">
+          <h3>Active Bread Catalog</h3>
+          <div class="value" id="kpi-active-bread-count">0</div>
+        </div>
+      </div>
+
+      <div class="split-layout">
+        <div class="col-main table-container">
+          <div class="table-header">
+            <span>AI-RECOMMENDED PRODUCTION BATCHES</span>
+            <button class="btn btn-accent admin-only" onclick="recalculateAI()">Refresh AI Forecast</button>
+          </div>
+          <div class="table-scroll-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Bread Type</th>
+                  <th>Avg Demand</th>
+                  <th>AI Target</th>
+                  <th class="baker-admin-action">Action</th>
+                </tr>
+              </thead>
+              <tbody id="ai-recommendations-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="col-side card baker-admin-panel">
+          <h3>Log Completed Batch</h3>
+          <form id="log-batch-form" onsubmit="logBakingBatch(event)">
+            <div class="form-group">
+              <label>Select Bread Item</label>
+              <select id="batch-bread-select"></select>
+            </div>
+            <div class="form-group">
+              <label>Quantity Baked (Units)</label>
+              <input type="number" id="batch-qty" required min="1" value="50">
+            </div>
+            <div class="form-group">
+              <label>Shelf Life (Days)</label>
+              <input type="number" id="batch-shelflife" value="3" required min="1">
+            </div>
+            <button type="submit" class="btn" style="width: 100%; margin-top: 10px;">Deduct Raw Materials & Log</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: BREAD CATALOG & RECIPE MANAGER (Admin, Baker, Staff) -->
+    <div id="tab-catalog" class="tab-content">
+      <div class="split-layout">
+        <div class="col-main table-container">
+          <div class="table-header">
+            <span>BREAD PRODUCTS & RECIPE FORMULAS</span>
+          </div>
+          <div class="table-scroll-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Bread Name</th>
+                  <th>Price</th>
+                  <th>Avg Sales</th>
+                  <th>Recipe Formula</th>
+                  <th class="admin-only-cell">Action</th>
+                </tr>
+              </thead>
+              <tbody id="bread-catalog-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="col-side card admin-only-panel">
+          <h3>Add New Product</h3>
+          <form onsubmit="addNewBread(event)">
+            <div class="form-group">
+              <label>Bread Name</label>
+              <input type="text" id="new-bread-name" placeholder="e.g. Ube Roll" required>
+            </div>
+            <div class="form-group">
+              <label>Selling Price (₱)</label>
+              <input type="number" id="new-bread-price" step="0.5" placeholder="15.00" required>
+            </div>
+            <div class="form-group">
+              <label>Est. Daily Demand</label>
+              <input type="number" id="new-bread-sales" placeholder="40" required>
+            </div>
+
+            <div class="form-group">
+              <label>Recipe Ingredients:</label>
+              <div id="recipe-builder-container"></div>
+              <button type="button" class="btn btn-accent" onclick="addIngredientRowToBuilder()" style="margin-top: 5px; font-size:0.75rem;">+ Add Ingredient</button>
+            </div>
+
+            <button type="submit" class="btn" style="width: 100%; margin-top: 10px;">Save Product</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: RAW INGREDIENTS (Admin, Inventory Staff, Baker) -->
+    <div id="tab-ingredients" class="tab-content">
+      <div id="inventory-banner" class="role-banner" style="display: none;">
+        <strong>Inventory Staff View:</strong> Full access to update raw material stocks and replenish supplies.
+      </div>
+      <div id="baker-ingredients-banner" class="role-banner" style="display: none; background: #e0f2fe; border-color: #0284c7; color: #0369a1;">
+        <strong>Baker View (Read-Only):</strong> Review ingredient availability before initiating production batches. Restock capability is restricted to Inventory Staff.
+      </div>
+
+      <div class="card-grid">
+        <div class="card">
+          <h3>Total Raw Ingredients</h3>
+          <div class="value" id="kpi-total-ingredients">0 Items</div>
+        </div>
+        <div class="card">
+          <h3>Low-Stock Warnings</h3>
+          <div class="value" style="color: var(--alert-red);" id="kpi-low-stock-count">0 Items</div>
+        </div>
+      </div>
+
+      <div class="split-layout">
+        <div class="col-main table-container">
+          <div class="table-header">
+            <span>RAW INGREDIENT INVENTORY LEVELS</span>
+          </div>
+          <div class="table-scroll-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Ingredient</th>
+                  <th>Current Stock</th>
+                  <th>Min Threshold</th>
+                  <th>Status</th>
+                  <th class="inventory-action-col">Action</th>
+                </tr>
+              </thead>
+              <tbody id="ingredients-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="col-side card inventory-only-panel">
+          <h3>Restock Raw Material</h3>
+          <form onsubmit="restockIngredient(event)">
+            <div class="form-group">
+              <label>Select Ingredient</label>
+              <select id="restock-ingredient-select"></select>
+            </div>
+            <div class="form-group">
+              <label>Add Quantity</label>
+              <input type="number" id="restock-qty" required step="0.1" value="10">
+            </div>
+            <button type="submit" class="btn btn-accent" style="width: 100%; margin-top: 10px;">Update Stock Level</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: SALES TRANSACTION LOGGING (Admin, Staff) -->
+    <div id="tab-pos" class="tab-content">
+      <div class="table-container">
+        <div class="table-header">
+          <span>SALES TRANSACTION LOGGING</span>
+        </div>
+        <div class="table-scroll-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Bread Type</th>
+                <th>Unit Price</th>
+                <th>Units Sold</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="sales-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: REPORTS & ANALYTICS (Admin, Baker, Inventory Staff) -->
+    <div id="tab-reports" class="tab-content">
+      <div class="card-grid">
+        <div class="card financial-kpi">
+          <h3>Total Gross Sales</h3>
+          <div class="value" id="kpi-report-sales">₱1,450.00</div>
+        </div>
+        <div class="card">
+          <h3>Total Food Waste / Expired</h3>
+          <div class="value" style="color: var(--alert-red);" id="kpi-report-waste">₱40.00</div>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <div class="table-header">
+          <span>ACTIVE BREAD BATCHES & EXPIRATION LOG</span>
+        </div>
+        <div class="table-scroll-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Batch ID</th>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Bake Date</th>
+                <th>Expiration Date</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="batch-expiration-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let currentRole = "Admin";
+
+    // INVENTORY & PRODUCT DATA
+    let ingredients = [
+      { id: 1, name: "Flour (kg)", stock: 45.0, minThreshold: 20.0 },
+      { id: 2, name: "Sugar (kg)", stock: 8.5, minThreshold: 10.0 },
+      { id: 3, name: "Yeast (g)", stock: 1200.0, minThreshold: 300.0 },
+      { id: 4, name: "Butter (kg)", stock: 15.0, minThreshold: 5.0 },
+      { id: 5, name: "Cheese (kg)", stock: 6.0, minThreshold: 3.0 }
+    ];
+
+    let breadProducts = [
+      { id: 101, name: "Pandesal", price: 5.00, avgSales: 150, recipes: { 1: 0.05, 2: 0.01, 3: 2 } },
+      { id: 102, name: "Spanish Bread", price: 15.00, avgSales: 60, recipes: { 1: 0.08, 2: 0.02, 4: 0.01 } },
+      { id: 103, name: "Cheese Bread", price: 18.00, avgSales: 45, recipes: { 1: 0.08, 2: 0.01, 5: 0.02 } },
+      { id: 104, name: "Ensaymada", price: 20.00, avgSales: 30, recipes: { 1: 0.10, 2: 0.03, 4: 0.02 } }
+    ];
+
+    let activeBatches = [
+      { id: "B-1001", productId: 101, productName: "Pandesal", qty: 150, bakeDate: "2026-08-26", expDate: "2026-08-29", expired: false },
+      { id: "B-1002", productId: 104, productName: "Ensaymada", qty: 20, bakeDate: "2026-08-24", expDate: "2026-08-27", expired: true }
+    ];
+
+    let grossSales = 1450.00;
+    let totalWasteAmount = 40.00;
+
+    // RBAC ROLE SWITCHER SYSTEM
+    function switchRole(role) {
+      currentRole = role;
+      document.getElementById('403-container').style.display = 'none';
+      
+      const navTabs = document.querySelectorAll('.nav-tab');
+      let firstVisibleTab = null;
+
+      navTabs.forEach(tab => {
+        const allowedRoles = tab.getAttribute('data-roles').split(',');
+        if (allowedRoles.includes(role)) {
+          tab.classList.remove('hidden');
+          if (!firstVisibleTab) firstVisibleTab = tab;
+        } else {
+          tab.classList.add('hidden');
+        }
+      });
+
+      // Banners Visibility
+      document.getElementById('baker-banner').style.display = (role === 'Baker') ? 'block' : 'none';
+      document.getElementById('inventory-banner').style.display = (role === 'Inventory Staff') ? 'block' : 'none';
+      document.getElementById('baker-ingredients-banner').style.display = (role === 'Baker') ? 'block' : 'none';
+
+      // 1. Ingredients Restock Panels (Admin + Inventory Staff)
+      const restockPanel = document.querySelector('.inventory-only-panel');
+      const ingredientActionCols = document.querySelectorAll('.inventory-action-col, .inventory-action-cell');
+      if (role === 'Baker') {
+        if (restockPanel) restockPanel.style.display = 'none';
+        ingredientActionCols.forEach(el => el.style.display = 'none');
+      } else {
+        if (restockPanel) restockPanel.style.display = 'block';
+        ingredientActionCols.forEach(el => el.style.display = '');
+      }
+
+      // 2. AI Production Panels (Admin + Baker)
+      const bakerPanels = document.querySelectorAll('.baker-admin-panel, .baker-admin-action');
+      const adminOnlyButtons = document.querySelectorAll('.admin-only');
+      if (role === 'Inventory Staff') {
+        bakerPanels.forEach(el => el.style.display = 'none');
+        adminOnlyButtons.forEach(el => el.style.display = 'none');
+      } else {
+        bakerPanels.forEach(el => el.style.display = '');
+        if (role === 'Admin') adminOnlyButtons.forEach(el => el.style.display = '');
+      }
+
+      // 3. Catalog Product Modification (Admin Only)
+      const adminCatalogPanels = document.querySelectorAll('.admin-only-panel, .admin-only-cell');
+      if (role !== 'Admin') {
+        adminCatalogPanels.forEach(el => el.style.display = 'none');
+      } else {
+        adminCatalogPanels.forEach(el => el.style.display = '');
+      }
+
+      // 4. Financial Reports (Admin Only)
+      const financialKpi = document.querySelector('.financial-kpi');
+      if (financialKpi) {
+        financialKpi.style.display = (role === 'Admin') ? 'block' : 'none';
+      }
+
+      // Auto-switch to first available tab
+      if (firstVisibleTab) {
+        firstVisibleTab.click();
+      }
+    }
+
+    // RENDERERS
+    function renderAll() {
+      renderAIRecommendations();
+      renderBreadCatalog();
+      renderIngredients();
+      renderSalesTable();
+      renderBatches();
+      populateBreadDropdown();
+    }
+
+    function renderAIRecommendations() {
+      const tbody = document.getElementById('ai-recommendations-tbody');
+      tbody.innerHTML = '';
+      let totalTarget = 0;
+
+      breadProducts.forEach(prod => {
+        const aiRec = Math.round(prod.avgSales * 1.10);
+        totalTarget += aiRec;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${prod.name}</strong></td>
+          <td>${prod.avgSales} units/day</td>
+          <td><span class="status-pill pill-green">${aiRec} units</span></td>
+          <td class="baker-admin-action"><button class="btn" onclick="acceptAIPlan('${prod.name}', ${aiRec})">Set Target</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('kpi-target-output').innerText = `${totalTarget} Units`;
+      document.getElementById('kpi-active-bread-count').innerText = breadProducts.length;
+    }
+
+    function renderBreadCatalog() {
+      const tbody = document.getElementById('bread-catalog-tbody');
+      tbody.innerHTML = '';
+
+      breadProducts.forEach(prod => {
+        let recipeString = [];
+        for (const [ingId, qty] of Object.entries(prod.recipes)) {
+          const ing = ingredients.find(i => i.id == ingId);
+          if (ing) recipeString.push(`${ing.name}: ${qty}`);
+        }
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${prod.name}</strong></td>
+          <td>₱${prod.price.toFixed(2)}</td>
+          <td>${prod.avgSales} units</td>
+          <td><small>${recipeString.join(', ') || 'No ingredients'}</small></td>
+          <td class="admin-only-cell"><button class="btn btn-danger" onclick="deleteBread(${prod.id})">Delete</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function deleteBread(productId) {
+      if (currentRole !== 'Admin') {
+        trigger403();
+        return;
+      }
+      if (confirm("Delete this bread product from catalog?")) {
+        breadProducts = breadProducts.filter(p => p.id !== productId);
+        renderAll();
+      }
+    }
+
+    function addIngredientRowToBuilder() {
+      const container = document.getElementById('recipe-builder-container');
+      const row = document.createElement('div');
+      row.className = 'recipe-builder-row';
+
+      let optionsHTML = ingredients.map(i => `<option value="${i.id}">${i.name}</option>`).join('');
+
+      row.innerHTML = `
+        <select class="builder-ing-select">${optionsHTML}</select>
+        <input type="number" class="builder-ing-qty" placeholder="Qty/unit" step="0.001" style="width: 90px;">
+        <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()" style="padding:2px 6px;">✕</button>
+      `;
+      container.appendChild(row);
+    }
+
+    function addNewBread(e) {
+      e.preventDefault();
+      if (currentRole !== 'Admin') {
+        trigger403();
+        return;
+      }
+
+      const name = document.getElementById('new-bread-name').value;
+      const price = parseFloat(document.getElementById('new-bread-price').value);
+      const sales = parseInt(document.getElementById('new-bread-sales').value);
+
+      const recipeObj = {};
+      const selectElements = document.querySelectorAll('.builder-ing-select');
+      const qtyElements = document.querySelectorAll('.builder-ing-qty');
+
+      selectElements.forEach((sel, idx) => {
+        const ingId = parseInt(sel.value);
+        const qty = parseFloat(qtyElements[idx].value) || 0;
+        if (qty > 0) recipeObj[ingId] = qty;
+      });
+
+      breadProducts.push({
+        id: Date.now(),
+        name: name,
+        price: price,
+        avgSales: sales,
+        recipes: recipeObj
+      });
+
+      document.getElementById('new-bread-name').value = '';
+      document.getElementById('new-bread-price').value = '';
+      document.getElementById('new-bread-sales').value = '';
+      document.getElementById('recipe-builder-container').innerHTML = '';
+
+      alert(`Added ${name} to Bread Basket Catalog!`);
+      renderAll();
+    }
+
+    function renderIngredients() {
+      const tbody = document.getElementById('ingredients-tbody');
+      const select = document.getElementById('restock-ingredient-select');
+      tbody.innerHTML = '';
+      select.innerHTML = '';
+
+      let lowStockCount = 0;
+
+      ingredients.forEach(ing => {
+        const isLow = ing.stock <= ing.minThreshold;
+        if (isLow) lowStockCount++;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${ing.name}</strong></td>
+          <td>${ing.stock.toFixed(2)}</td>
+          <td>${ing.minThreshold.toFixed(2)}</td>
+          <td><span class="status-pill ${isLow ? 'pill-red' : 'pill-green'}">${isLow ? 'LOW STOCK' : 'Sufficient'}</span></td>
+          <td class="inventory-action-cell"><button class="btn btn-accent" onclick="quickRestock(${ing.id})">+ Restock</button></td>
+        `;
+        tbody.appendChild(tr);
+
+        const opt = document.createElement('option');
+        opt.value = ing.id;
+        opt.innerText = ing.name;
+        select.appendChild(opt);
+      });
+
+      document.getElementById('kpi-total-ingredients').innerText = `${ingredients.length} Items`;
+      document.getElementById('kpi-low-stock-count').innerText = `${lowStockCount} Item${lowStockCount !== 1 ? 's' : ''}`;
+      
+      if (currentRole === 'Baker') {
+        document.querySelectorAll('.inventory-action-cell').forEach(el => el.style.display = 'none');
+      }
+    }
+
+    function renderSalesTable() {
+      const tbody = document.getElementById('sales-tbody');
+      tbody.innerHTML = '';
+
+      breadProducts.forEach(prod => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${prod.name}</strong></td>
+          <td>₱${prod.price.toFixed(2)}</td>
+          <td><input type="number" value="10" id="sale-qty-${prod.id}" style="width: 80px;"></td>
+          <td><button class="btn" onclick="logSale(${prod.id})">Record Sale</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderBatches() {
+      const tbody = document.getElementById('batch-expiration-tbody');
+      tbody.innerHTML = '';
+
+      activeBatches.forEach(b => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${b.id}</td>
+          <td><strong>${b.productName}</strong></td>
+          <td>${b.qty}</td>
+          <td>${b.bakeDate}</td>
+          <td>${b.expDate}</td>
+          <td><span class="status-pill ${b.expired ? 'pill-red' : 'pill-green'}">${b.expired ? 'EXPIRED' : 'Fresh'}</span></td>
+          <td>${b.expired ? `<button class="btn btn-danger" onclick="logWaste('${b.id}')">Log Waste</button>` : '<span style="color:var(--text-muted)">Active</span>'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function populateBreadDropdown() {
+      const select = document.getElementById('batch-bread-select');
+      select.innerHTML = '';
+      breadProducts.forEach(prod => {
+        const opt = document.createElement('option');
+        opt.value = prod.id;
+        opt.innerText = prod.name;
+        select.appendChild(opt);
+      });
+    }
+
+    function logBakingBatch(e) {
+      e.preventDefault();
+      if (currentRole === 'Inventory Staff') {
+        trigger403();
+        return;
+      }
+
+      const prodId = parseInt(document.getElementById('batch-bread-select').value);
+      const qty = parseInt(document.getElementById('batch-qty').value);
+      const shelfDays = parseInt(document.getElementById('batch-shelflife').value);
+      
+      const product = breadProducts.find(p => p.id === prodId);
+      if (!product) return;
+
+      for (const [ingId, qtyPerUnit] of Object.entries(product.recipes)) {
+        const ing = ingredients.find(i => i.id == ingId);
+        if (ing) ing.stock = Math.max(0, ing.stock - (qtyPerUnit * qty));
+      }
+
+      const today = new Date();
+      const expDate = new Date();
+      expDate.setDate(today.getDate() + shelfDays);
+
+      activeBatches.push({
+        id: `B-${Math.floor(1000 + Math.random() * 9000)}`,
+        productId: product.id,
+        productName: product.name,
+        qty: qty,
+        bakeDate: today.toISOString().split('T')[0],
+        expDate: expDate.toISOString().split('T')[0],
+        expired: false
+      });
+
+      alert(`Batch Logged! Deducted raw materials for ${qty} units of ${product.name}.`);
+      renderIngredients();
+      renderBatches();
+    }
+
+    function restockIngredient(e) {
+      e.preventDefault();
+      if (currentRole === 'Baker') {
+        trigger403();
+        return;
+      }
+
+      const ingId = parseInt(document.getElementById('restock-ingredient-select').value);
+      const addQty = parseFloat(document.getElementById('restock-qty').value);
+
+      const ing = ingredients.find(i => i.id === ingId);
+      if (ing) {
+        ing.stock += addQty;
+        alert(`Restocked ${addQty} to ${ing.name}`);
+        renderIngredients();
+      }
+    }
+
+    function quickRestock(ingId) {
+      if (currentRole === 'Baker') {
+        trigger403();
+        return;
+      }
+      const ing = ingredients.find(i => i.id === ingId);
+      if (ing) {
+        ing.stock += 10.0;
+        renderIngredients();
+      }
+    }
+
+    function logSale(prodId) {
+      if (currentRole === 'Baker') {
+        trigger403();
+        return;
+      }
+
+      const qty = parseInt(document.getElementById(`sale-qty-${prodId}`).value);
+      const prod = breadProducts.find(p => p.id === prodId);
+      
+      prod.avgSales = Math.round((prod.avgSales + qty) / 2);
+      grossSales += (prod.price * qty);
+
+      document.getElementById('kpi-report-sales').innerText = `₱${grossSales.toFixed(2)}`;
+      alert(`Recorded sale of ${qty} units of ${prod.name}!`);
+      renderAIRecommendations();
+    }
+
+    function logWaste(batchId) {
+      const index = activeBatches.findIndex(b => b.id === batchId);
+      if (index !== -1) {
+        const batch = activeBatches[index];
+        const prod = breadProducts.find(p => p.id === batch.productId);
+        totalWasteAmount += (prod ? prod.price * batch.qty * 0.5 : 20);
+        
+        activeBatches.splice(index, 1);
+        document.getElementById('kpi-report-waste').innerText = `₱${totalWasteAmount.toFixed(2)}`;
+        alert(`Batch ${batchId} logged as waste.`);
+        renderBatches();
+      }
+    }
+
+    function acceptAIPlan(name, target) {
+      alert(`Target output recorded for ${name}: ${target} units.`);
+    }
+
+    function recalculateAI() {
+      renderAIRecommendations();
+      alert("AI Forecast updated!");
+    }
+
+    function trigger403() {
+      alert("403 Unauthorized: Your current role does not have permission to execute this operation.");
+    }
+
+    function showTab(tabId, event) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(n => n.classList.remove('active'));
+      
+      document.getElementById(tabId).classList.add('active');
+      if (event && event.target) {
+        event.target.classList.add('active');
+      }
+    }
+
+    // INIT
+    window.addEventListener('DOMContentLoaded', () => {
+      addIngredientRowToBuilder();
+      renderAll();
+      switchRole('Admin');
+    });
+  </script>
+</body>
+</html>
